@@ -4,7 +4,12 @@ from pydantic import Field
 
 from src.infrastructure.models import InternalModel, PublicModel
 
-__all__ = ("OrderCreateRequestBody", "OrderPublic", "OrderUncommited", "Order")
+__all__ = (
+    "OrderCreateRequestBody",
+    "OrderPublic",
+    "OrderUncommited",
+    "Order",
+)
 
 
 # Public models
