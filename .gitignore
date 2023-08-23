@@ -12,9 +12,14 @@ venv/
 # VS code
 .vscode
 
+# Pylint
+.pylintrc
+
 # PyCharm
 .idea
 
+# Ruff
+.ruff_cache/
 
 ## Storages
 # Sqlite
