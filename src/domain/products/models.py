@@ -16,7 +16,9 @@ __all__ = (
 # ------------------------------------------------------
 class _ProductPublic(PublicModel):
     name: str = Field(description="OpenAPI description")
+    title: str = Field(description="OpenAPI description")
     price: int = Field(description="OpenAPI description")
+    amount: int = Field(description="OpenAPI description")
 
 
 class ProductCreateRequestBody(_ProductPublic):
@@ -35,7 +37,9 @@ class ProductPublic(_ProductPublic):
 # ------------------------------------------------------
 class _ProductInternal(InternalModel):
     name: str
+    title: str
     price: int
+    amount: int
 
 
 class ProductUncommited(_ProductInternal):
