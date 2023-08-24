@@ -12,16 +12,21 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from src.config import settings
+from src.infrastructure.database.tables import Base
+from src.infrastructure.errors import DatabaseError
 
-from ..errors import DatabaseError
-
-__all__ = ("get_session", "engine", "CTX_SESSION")
+__all__ = ("get_session", "engine", "CTX_SESSION", "create_tables")
 
 
 # Definition of an asynchronous database engine
 engine: AsyncEngine = create_async_engine(
     settings.database.url, future=True, pool_pre_ping=True, echo=False
 )
+
+
+async def create_tables():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
 
 def get_session(engine: AsyncEngine | None = engine) -> AsyncSession:
