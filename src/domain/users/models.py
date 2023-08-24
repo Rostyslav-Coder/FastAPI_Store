@@ -1,10 +1,33 @@
 """src/domain/users/models.py"""
 
-from pydantic import EmailStr
+from typing import Optional
 
-from src.infrastructure.models import InternalModel
+from pydantic import Field
 
-__all__ = ("UserUncommited", "User")
+from src.infrastructure.models import InternalModel, PublicModel
+
+__all__ = ("UserCreateRequestBody", "UserPublic", "UserUncommited", "User")
+
+
+# Public models
+# ------------------------------------------------------
+class _UserPublic(PublicModel):
+    email: str = Field(description="OpenAPI description")
+    phone_number: str = Field(description="OpenAPI description")
+    first_name: str = Field(description="OpenAPI description")
+    last_name: str = Field(description="OpenAPI description")
+
+
+class UserCreateRequestBody(_UserPublic):
+    """User create request body"""
+
+    password: str = Field(description="OpenAPI description")
+
+
+class UserPublic(_UserPublic):
+    """The internal application representation."""
+
+    id: int
 
 
 # Internal models
@@ -12,11 +35,11 @@ __all__ = ("UserUncommited", "User")
 class UserUncommited(InternalModel):
     """This schema is used for creating instance in the database."""
 
-    email: EmailStr
+    email: str
     phone_number: str
     password: str
-    first_name: str
-    last_name: str
+    first_name: Optional[str]
+    last_name: Optional[str]
 
 
 class User(UserUncommited):
