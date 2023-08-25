@@ -19,6 +19,10 @@ class UsersRepository(BaseRepository[UsersTable]):
         instance = await self._get(key="id", value=id_)
         return User.from_orm(instance)
 
+    async def get_by_email(self, email_: int) -> User:
+        instance = await self._get(key="email", value=email_)
+        return User.from_orm(instance)
+
     async def create(self, schema: UserUncommited) -> User:
         instance: UsersTable = await self._save(schema.dict())
         return User.from_orm(instance)
