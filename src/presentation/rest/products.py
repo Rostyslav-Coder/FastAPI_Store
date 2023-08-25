@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, Depends, Request, status
 
-from src.application.authentication import get_current_user
+from src.application.authentication import RoleRequired
 from src.domain.products import (
     Product,
     ProductCreateRequestBody,
@@ -36,7 +36,7 @@ async def products_list(request: Request) -> ResponseMulti[ProductPublic]:
 async def product_create(
     _: Request,
     schema: ProductCreateRequestBody,
-    user: User = Depends(get_current_user),
+    user: User = Depends(RoleRequired(True)),
 ) -> Response[ProductPublic]:
     """Create a new product."""
 
