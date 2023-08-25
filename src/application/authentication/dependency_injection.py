@@ -10,11 +10,12 @@ from pydantic import ValidationError
 from src.config import settings
 from src.domain.authentication import TokenPayload
 from src.domain.users import User, UsersRepository
-from src.infrastructure.errors import AuthenticationError
+from src.infrastructure.errors import AuthenticationError, AuthorizationError
 
 __all__ = (
     "get_current_user",
     "create_access_token",
+    "RoleRequired",
 )
 
 oauth2_oauth = OAuth2PasswordBearer(
@@ -58,3 +59,14 @@ def create_access_token(data: dict) -> str:
         algorithm=settings.authentication.algorithm,
     )
     return encoded_jwt
+
+
+class RoleRequired:
+    def __init__(self, role: bool):
+        self.is_manager = role
+
+    async def __call__(self, user=Depends(get_current_user)):
+        if user.is_manager != self.is_manager:
+            raise AuthorizationError
+
+        return user
