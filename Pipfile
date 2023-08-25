@@ -16,6 +16,7 @@ pydantic = {version = "~=1.10", extras=["dotenv"]}
 python-jose = {version = "~=3.3", extras = ["cryptography"]}
 uvicorn = "~=0.21.0"
 websockets = "~=11.0"
+python-multipart = "*"
 
 [dev-packages]
 black = "~=23.1"
