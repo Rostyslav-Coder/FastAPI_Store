@@ -28,6 +28,7 @@ class UserPublic(_UserPublic):
     """The internal application representation."""
 
     id: int
+    is_manager: bool
 
 
 # Internal models

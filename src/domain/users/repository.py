@@ -26,3 +26,9 @@ class UsersRepository(BaseRepository[UsersTable]):
     async def create(self, schema: UserUncommited) -> User:
         instance: UsersTable = await self._save(schema.dict())
         return User.from_orm(instance)
+
+    async def update(self, id_: int, schema: UserUncommited) -> User:
+        instance: UsersTable = await self._update(
+            key="id", value=id_, payload=schema.dict()
+        )
+        return User.from_orm(instance)
