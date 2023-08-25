@@ -1,7 +1,9 @@
 """src/presentation/rest/users.py"""
 
-from fastapi import APIRouter, Request, status
+from fastapi import APIRouter, Depends, Request, status
 
+from src.application.authentication import get_current_user
+from src.config import pwd_context
 from src.domain.users import (
     User,
     UserCreateRequestBody,
@@ -23,6 +25,10 @@ async def users_create(
 ) -> Response[UserPublic]:
     """Create a new usser."""
 
+    # Password hashing
+    hashed_password = pwd_context.hash(schema.password)
+    schema.password = hashed_password
+
     # Save user to the database
     user: User = await UsersRepository().create(
         UserUncommited(**schema.dict())
@@ -30,3 +36,11 @@ async def users_create(
     user_public = UserPublic.from_orm(user)
 
     return Response[UserPublic](result=user_public)
+
+
+@router.get("/me", status_code=status.HTTP_200_OK)
+@transaction
+async def users_me(current_user: User = Depends(get_current_user)) -> dict:
+    """Function return current user"""
+
+    return current_user.dict()
