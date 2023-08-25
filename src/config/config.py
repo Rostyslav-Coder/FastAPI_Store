@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+from passlib.context import CryptContext
 from pydantic import BaseConfig, BaseModel, BaseSettings
 
 
@@ -62,14 +63,14 @@ class AccessTokenSettings(BaseModel):
     """Configure Token settings."""
 
     secret_key: str = "invaliad"
-    ttl: int = 360  # seconds
+    ttl: int = 3600  # seconds
 
 
 class RefreshTokenSettings(BaseModel):
     """Configure Refresh Token settings."""
 
     secret_key: str = "invaliad"
-    ttl: int = 360  # seconds
+    ttl: int = 3600  # seconds
 
 
 class AuthenticationSettings(BaseModel):
@@ -79,6 +80,9 @@ class AuthenticationSettings(BaseModel):
     refresh_token: RefreshTokenSettings = RefreshTokenSettings()
     algorithm: str = "HS256"
     scheme: str = "Bearer"
+
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 # Settings are powered by pydantic
