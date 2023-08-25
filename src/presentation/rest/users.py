@@ -40,7 +40,11 @@ async def users_create(
 
 @router.get("/me", status_code=status.HTTP_200_OK)
 @transaction
-async def users_me(current_user: User = Depends(get_current_user)) -> dict:
+async def users_me(
+    current_user: UserPublic = Depends(get_current_user),
+) -> dict:
     """Function return current user"""
 
-    return current_user.dict()
+    user = current_user.dict()
+    user.pop("password")
+    return user
