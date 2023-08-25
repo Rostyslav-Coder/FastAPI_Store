@@ -19,7 +19,7 @@ router = APIRouter(prefix="/users", tags=["Users"])
 
 @router.post("", status_code=status.HTTP_201_CREATED)
 @transaction
-async def users_create(
+async def user_create(
     _: Request,
     schema: UserCreateRequestBody,
 ) -> Response[UserPublic]:
@@ -40,7 +40,7 @@ async def users_create(
 
 @router.get("/me", status_code=status.HTTP_200_OK)
 @transaction
-async def users_me(
+async def user_me(
     current_user: UserPublic = Depends(get_current_user),
 ) -> dict:
     """Function return current user"""
@@ -48,3 +48,19 @@ async def users_me(
     user = current_user.dict()
     user.pop("password")
     return user
+
+
+@router.put("/manager", status_code=status.HTTP_202_ACCEPTED)
+@transaction
+async def user_manager(
+    schema: UserPublic = Depends(get_current_user),
+) -> dict:
+    """Function updated user to user-manager"""
+
+    schema.is_manager = True
+    user: UserPublic = await UsersRepository().update(
+        id_=schema.id, schema=schema
+    )
+    manager = user.dict()
+    manager.pop("password")
+    return manager
