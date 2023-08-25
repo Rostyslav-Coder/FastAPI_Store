@@ -39,6 +39,7 @@ class UsersTable(Base):
 
     __tablename__ = "users"
 
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     email: Mapped[str] = mapped_column(String(length=320), nullable=False)
     phone_number: Mapped[str] = mapped_column(
         String(length=16), nullable=False
@@ -56,6 +57,7 @@ class ProductsTable(Base):
 
     __tablename__ = "products"
 
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(
         String(length=100), unique=True, nullable=False
     )
@@ -71,8 +73,8 @@ class OrdersTable(Base):
 
     __tablename__ = "orders"
 
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
     amount: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
-
     product_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey(ProductsTable.id),
