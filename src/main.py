@@ -1,5 +1,6 @@
 """src/main.py"""
 
+import uvicorn
 from fastapi import FastAPI
 from loguru import logger
 
@@ -29,7 +30,16 @@ logger.add(
 # -------------------------------
 app: FastAPI = application.create(
     debug=settings.debug,
-    rest_routers=(rest.users.router, rest.products.router, rest.orders.router),
+    rest_routers=(
+        rest.users.router,
+        rest.authentication.router,
+        rest.products.router,
+        rest.orders.router,
+    ),
     startup_tasks=[database.create_tables],
     shutdown_tasks=[],
 )
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="127.0.0.1", port=8000)
