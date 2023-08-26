@@ -17,14 +17,14 @@ from src.infrastructure.models import Response, ResponseMulti
 router = APIRouter(prefix="/orders", tags=["Orders"])
 
 
-@router.get("", status_code=status.HTTP_200_OK)
+@router.get("/my_orders", status_code=status.HTTP_200_OK)
 @transaction
 async def orders_list(
-    request: Request, user: User = Depends(get_current_user)
+    _: Request, user: User = Depends(get_current_user)
 ) -> ResponseMulti[OrderPublic]:
-    """Get all orders."""
+    """Get all my orders."""
 
-    # Get all products from the database
+    # Get all my products from the database
     orders_public = [
         OrderPublic.from_orm(order) async for order in OrdersRepository().all()
     ]
@@ -32,15 +32,15 @@ async def orders_list(
     return ResponseMulti[OrderPublic](result=orders_public)
 
 
-@router.post("", status_code=status.HTTP_201_CREATED)
+@router.post("/buy", status_code=status.HTTP_201_CREATED)
 async def order_create(
-    request: Request,
+    _: Request,
     schema: OrderCreateRequestBody,
     user: User = Depends(get_current_user),
 ) -> Response[OrderPublic]:
     """Create a new order."""
 
-    # Save product to the database
+    # Save order to the database
     order: Order = await orders.create(payload=schema.dict(), user=user)
     order_public = OrderPublic.from_orm(order)
 
