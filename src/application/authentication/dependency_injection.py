@@ -62,6 +62,8 @@ def create_access_token(data: dict) -> str:
 
 
 class RoleRequired:
+    """Require users role"""
+
     def __init__(self, role: bool):
         self.is_manager = role
 
