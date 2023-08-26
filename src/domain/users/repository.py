@@ -11,8 +11,10 @@ __all__ = ("UsersRepository",)
 class UsersRepository(BaseRepository[UsersTable]):
     schema_class = UsersTable
 
-    async def all(self) -> AsyncGenerator[User, None]:
-        async for instance in self._all():
+    async def all(
+        self, skip: int = 0, limit: int = 5
+    ) -> AsyncGenerator[User, None]:
+        async for instance in self._all(skip=skip, limit=limit):
             yield User.from_orm(instance)
 
     async def get(self, id_: int) -> User:
