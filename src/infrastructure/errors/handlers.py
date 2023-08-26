@@ -10,8 +10,8 @@ from fastapi.responses import JSONResponse
 from starlette import status
 from starlette.requests import Request
 
-from ..models import ErrorResponse, ErrorResponseMulti
-from .base import BaseError
+from src.infrastructure.errors.base import BaseError
+from src.infrastructure.models import ErrorResponse, ErrorResponseMulti
 
 __all__ = (
     "custom_base_errors_handler",
