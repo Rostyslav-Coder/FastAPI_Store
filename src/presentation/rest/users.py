@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, Depends, Request, status
 
-from src.application.authentication import get_current_user
+from src.application.authentication import RoleRequired, get_current_user
 from src.config import pwd_context
 from src.domain.users import (
     User,
@@ -12,7 +12,7 @@ from src.domain.users import (
     UserUncommited,
 )
 from src.infrastructure.database.transaction import transaction
-from src.infrastructure.models import Response
+from src.infrastructure.models import Response, ResponseMulti
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -48,6 +48,21 @@ async def user_me(
     user = current_user.dict()
     user.pop("password")
     return Response[UserPublic](result=user)
+
+
+@router.get("/list", status_code=status.HTTP_200_OK)
+@transaction
+async def users_all(
+    user=Depends(RoleRequired(True)), skip: int = 0, limit: int = 5
+) -> ResponseMulti[UserPublic]:
+    """Function return allusers, only for managers"""
+
+    users_list = [
+        UserPublic.from_orm(users)
+        async for users in UsersRepository().all(skip=skip, limit=limit)
+    ]
+
+    return ResponseMulti[UserPublic](result=users_list)
 
 
 @router.put("/manager", status_code=status.HTTP_202_ACCEPTED)
