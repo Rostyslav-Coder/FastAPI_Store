@@ -8,7 +8,7 @@ from fastapi import APIRouter, FastAPI
 from fastapi.exceptions import RequestValidationError
 from pydantic import ValidationError
 
-from ..errors import (
+from src.infrastructure.errors import (
     BaseError,
     custom_base_errors_handler,
     pydantic_validation_errors_handler,
