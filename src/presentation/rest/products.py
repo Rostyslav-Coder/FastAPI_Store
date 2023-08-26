@@ -20,7 +20,7 @@ router = APIRouter(prefix="/products", tags=["Products"])
 @router.get("/id/{product_id}", status_code=status.HTTP_200_OK)
 @transaction
 async def product_by_id(_: Request, product_id: int) -> ProductPublic:
-    """Get product by name"""
+    """Get product by product id"""
 
     # Get product from database by id
     product_public: ProductPublic = await ProductRepository().get(
@@ -33,7 +33,7 @@ async def product_by_id(_: Request, product_id: int) -> ProductPublic:
 @router.get("/name/{name}", status_code=status.HTTP_200_OK)
 @transaction
 async def product_by_name(_: Request, name: str) -> ProductPublic | None:
-    """Get product by name"""
+    """Get product by product name"""
 
     # Get product from database by name
     product_public: ProductPublic = await ProductRepository().get_by_name(
@@ -48,7 +48,7 @@ async def product_by_name(_: Request, name: str) -> ProductPublic | None:
 async def products_list(
     _: Request, skip: int = 0, limit: int = 5
 ) -> ResponseMulti[ProductPublic]:
-    """Get all products."""
+    """Get all my products."""
 
     # Get all products from the database
     products_public = [
@@ -66,7 +66,7 @@ async def product_create(
     schema: ProductCreateRequestBody,
     user: User = Depends(RoleRequired(True)),
 ) -> Response[ProductPublic]:
-    """Create a new product."""
+    """Create a new product, only managers"""
 
     # Save product to the database
     product: Product = await ProductRepository().create(
