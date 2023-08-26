@@ -6,7 +6,7 @@ from typing import Any, Generic
 from pydantic import Field, conlist
 from pydantic.generics import GenericModel
 
-from .base import PublicModel, _PublicModel
+from src.infrastructure.models.base import PublicModel, _PublicModel
 
 __all__ = (
     "ResponseMulti",
