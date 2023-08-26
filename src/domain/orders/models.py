@@ -29,6 +29,7 @@ class OrderPublic(_OrderPublic):
     """The internal application representation."""
 
     id: int
+    user_id: int
 
 
 # Internal models
