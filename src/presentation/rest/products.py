@@ -17,9 +17,37 @@ from src.infrastructure.models import Response, ResponseMulti
 router = APIRouter(prefix="/products", tags=["Products"])
 
 
-@router.get("", status_code=status.HTTP_200_OK)
+@router.get("/id/{product_id}", status_code=status.HTTP_200_OK)
 @transaction
-async def products_list(request: Request) -> ResponseMulti[ProductPublic]:
+async def product_by_id(_: Request, product_id: int) -> ProductPublic:
+    """Get product by name"""
+
+    # Get product from database by id
+    product_public: ProductPublic = await ProductRepository().get(
+        id_=product_id
+    )
+
+    return product_public
+
+
+@router.get("/name/{name}", status_code=status.HTTP_200_OK)
+@transaction
+async def product_by_name(_: Request, name: str) -> ProductPublic | None:
+    """Get product by name"""
+
+    # Get product from database by name
+    product_public: ProductPublic = await ProductRepository().get_by_name(
+        name_=name
+    )
+
+    return product_public
+
+
+@router.get("/all", status_code=status.HTTP_200_OK)
+@transaction
+async def products_list(
+    _: Request, skip: int = 0, limit: int = 10
+) -> ResponseMulti[ProductPublic]:
     """Get all products."""
 
     # Get all products from the database
@@ -31,7 +59,7 @@ async def products_list(request: Request) -> ResponseMulti[ProductPublic]:
     return ResponseMulti[ProductPublic](result=products_public)
 
 
-@router.post("", status_code=status.HTTP_201_CREATED)
+@router.post("/add", status_code=status.HTTP_201_CREATED)
 @transaction
 async def product_create(
     _: Request,

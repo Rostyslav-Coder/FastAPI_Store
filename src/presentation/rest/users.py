@@ -47,7 +47,7 @@ async def user_me(
 
     user = current_user.dict()
     user.pop("password")
-    return user
+    return Response[UserPublic](result=user)
 
 
 @router.put("/manager", status_code=status.HTTP_202_ACCEPTED)
@@ -63,4 +63,4 @@ async def user_manager(
     )
     manager = user.dict()
     manager.pop("password")
-    return manager
+    return Response[UserPublic](result=manager)
