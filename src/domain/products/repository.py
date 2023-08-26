@@ -11,8 +11,10 @@ __all__ = ("ProductRepository",)
 class ProductRepository(BaseRepository[ProductsTable]):
     schema_class = ProductsTable
 
-    async def all(self) -> AsyncGenerator[Product, None]:
-        async for instance in self._all():
+    async def all(
+        self, skip: int = 0, limit: int = 5
+    ) -> AsyncGenerator[Product, None]:
+        async for instance in self._all(skip=skip, limit=limit):
             yield Product.from_orm(instance)
 
     async def get(self, id_: int) -> Product:
