@@ -17,7 +17,7 @@ from src.infrastructure.models import Response
 router = APIRouter(prefix="/users", tags=["Users"])
 
 
-@router.post("", status_code=status.HTTP_201_CREATED)
+@router.post("/cteate", status_code=status.HTTP_201_CREATED)
 @transaction
 async def user_create(
     _: Request,
