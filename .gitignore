@@ -18,6 +18,9 @@ venv/
 # PyCharm
 .idea
 
+# Mypy
+.mypy_cache
+
 # Ruff
 .ruff_cache/
 
