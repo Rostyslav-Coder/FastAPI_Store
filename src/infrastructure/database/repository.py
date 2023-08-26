@@ -4,9 +4,13 @@ from typing import Any, AsyncGenerator, Generic, Type
 
 from sqlalchemy import Result, asc, delete, desc, func, select, update
 
-from ..errors import DatabaseError, NotFoundError, UnprocessableError
-from .session import Session
-from .tables import ConcreteTable
+from src.infrastructure.database.session import Session
+from src.infrastructure.database.tables import ConcreteTable
+from src.infrastructure.errors import (
+    DatabaseError,
+    NotFoundError,
+    UnprocessableError,
+)
 
 __all__ = ("BaseRepository",)
 
@@ -66,8 +70,8 @@ class BaseRepository(Session, Generic[ConcreteTable]):  # type: ignore
 
     async def count(self) -> int:
         result: Result = await self.execute(
-            func.count(self.schema_class.id)
-        )  # pylint: disable=E1102
+            func.count(self.schema_class.id)  # pylint: disable=E1102
+        )
         value = result.scalar()
 
         if not isinstance(value, int):

@@ -6,8 +6,8 @@ from loguru import logger
 from sqlalchemy.exc import IntegrityError, PendingRollbackError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..errors import DatabaseError
-from .session import CTX_SESSION, get_session
+from src.infrastructure.database import CTX_SESSION, get_session
+from src.infrastructure.errors import DatabaseError
 
 
 def transaction(coro):
