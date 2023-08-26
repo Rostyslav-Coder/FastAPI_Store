@@ -46,14 +46,14 @@ async def product_by_name(_: Request, name: str) -> ProductPublic | None:
 @router.get("/all", status_code=status.HTTP_200_OK)
 @transaction
 async def products_list(
-    _: Request, skip: int = 0, limit: int = 10
+    _: Request, skip: int = 0, limit: int = 5
 ) -> ResponseMulti[ProductPublic]:
     """Get all products."""
 
     # Get all products from the database
     products_public = [
         ProductPublic.from_orm(product)
-        async for product in ProductRepository().all()
+        async for product in ProductRepository().all(skip=skip, limit=limit)
     ]
 
     return ResponseMulti[ProductPublic](result=products_public)
