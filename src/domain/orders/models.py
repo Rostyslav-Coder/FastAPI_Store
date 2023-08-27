@@ -1,7 +1,10 @@
 """src/domain/orders/models.py"""
 
+from datetime import datetime
+
 from pydantic import Field
 
+from src.domain.constants import OrderStatus
 from src.infrastructure.models import InternalModel, PublicModel
 
 __all__ = (
@@ -15,8 +18,12 @@ __all__ = (
 # Public models
 # ------------------------------------------------------
 class _OrderPublic(PublicModel):
-    amount: int = Field(description="OpenAPI description")
+    """Base class for public order schemas. Defines common fields
+    that are present in all public order schemas.
+    """
+
     product_id: int = Field(description="OpenAPI description")
+    amount: int = Field(description="OpenAPI description")
 
 
 class OrderCreateRequestBody(_OrderPublic):
@@ -30,14 +37,24 @@ class OrderPublic(_OrderPublic):
 
     id: int
     user_id: int
+    delivery_address: str
+    status: OrderStatus
+    order_date: datetime
 
 
 # Internal models
 # ------------------------------------------------------
 class _OrderInternal(InternalModel):
-    amount: int
+    """Base class for internal order schemas. Defines common fields
+    that are present in all internal order schemas.
+    """
+
     product_id: int
+    amount: int
     user_id: int
+    delivery_address: str
+    status: OrderStatus = OrderStatus.PENDING
+    order_date: datetime
 
 
 class OrderUncommited(_OrderInternal):
