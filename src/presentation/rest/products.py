@@ -83,9 +83,28 @@ async def product_name_update(
     new_name: str,
     user: User = Depends(RoleRequired(True)),  # pylint: disable=W0613
 ) -> Response[ProductPublic]:
-    """Update product amount, only managers"""
+    """Update product name, only managers"""
 
     payload = {"name": new_name}
+    product: Product = await ProductRepository().update(
+        key_="id", value_=product_id, payload_=payload
+    )
+    product_public = ProductPublic.from_orm(product)
+
+    return Response[ProductPublic](result=product_public)
+
+
+@router.put("/update_title", status_code=status.HTTP_202_ACCEPTED)
+@transaction
+async def product_title_update(
+    _: Request,
+    product_id: int,
+    new_title: str,
+    user: User = Depends(RoleRequired(True)),  # pylint: disable=W0613
+) -> Response[ProductPublic]:
+    """Update product title, only managers"""
+
+    payload = {"name": new_title}
     product: Product = await ProductRepository().update(
         key_="id", value_=product_id, payload_=payload
     )
