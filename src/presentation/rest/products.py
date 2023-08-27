@@ -92,3 +92,22 @@ async def product_price_update(
     product_public = ProductPublic.from_orm(product)
 
     return Response[ProductPublic](result=product_public)
+
+
+@router.put("/update_amount", status_code=status.HTTP_202_ACCEPTED)
+@transaction
+async def product_amount_update(
+    _: Request,
+    product_id: int,
+    new_amount: int,
+    user: User = Depends(RoleRequired(True)),  # pylint: disable=W0613
+) -> Response[ProductPublic]:
+    """Update product amount, only managers"""
+
+    payload = {"amount": new_amount}
+    product: Product = await ProductRepository().update(
+        key_="id", value_=product_id, payload_=payload
+    )
+    product_public = ProductPublic.from_orm(product)
+
+    return Response[ProductPublic](result=product_public)
