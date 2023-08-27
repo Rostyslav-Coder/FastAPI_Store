@@ -80,7 +80,7 @@ async def product_create(
 async def product_name_update(
     _: Request,
     product_id: int,
-    new_name: int,
+    new_name: str,
     user: User = Depends(RoleRequired(True)),  # pylint: disable=W0613
 ) -> Response[ProductPublic]:
     """Update product amount, only managers"""
