@@ -24,7 +24,7 @@ class _ProductPublic(PublicModel):
 class ProductCreateRequestBody(_ProductPublic):
     """Product create request body."""
 
-    pass
+    pass  # pylint: disable=W0107
 
 
 class ProductPublic(_ProductPublic):
@@ -45,7 +45,7 @@ class _ProductInternal(InternalModel):
 class ProductUncommited(_ProductInternal):
     """This schema is used for creating instance in the database."""
 
-    pass
+    pass  # pylint: disable=W0107
 
 
 class Product(_ProductInternal):
