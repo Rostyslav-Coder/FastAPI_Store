@@ -12,10 +12,15 @@ __all__ = ("UserCreateRequestBody", "UserPublic", "UserUncommited", "User")
 # Public models
 # ------------------------------------------------------
 class _UserPublic(PublicModel):
+    """Base class for public user schemas. Defines common fields
+    that are present in all public user schemas.
+    """
+
     email: str = Field(description="OpenAPI description")
     phone_number: str = Field(description="OpenAPI description")
     first_name: str = Field(description="OpenAPI description")
     last_name: str = Field(description="OpenAPI description")
+    address: str = Field(description="OpenAPI description")
 
 
 class UserCreateRequestBody(_UserPublic):
@@ -41,6 +46,7 @@ class UserUncommited(InternalModel):
     password: str
     first_name: Optional[str]
     last_name: Optional[str]
+    address: str = Field(description="OpenAPI description")
 
 
 class User(UserUncommited):
