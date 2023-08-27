@@ -5,10 +5,10 @@ from fastapi import APIRouter, Depends, Request, status
 from src.application import orders
 from src.application.authentication import get_current_user
 from src.domain.orders import (
-    Order,
     OrderCreateRequestBody,
     OrderPublic,
     OrdersRepository,
+    OrderUncommited,
 )
 from src.domain.users import User
 from src.infrastructure.database.transaction import transaction
@@ -32,16 +32,18 @@ async def orders_list(
     return ResponseMulti[OrderPublic](result=orders_public)
 
 
-@router.post("/buy", status_code=status.HTTP_201_CREATED)
+@router.post("/add", status_code=status.HTTP_201_CREATED)
 async def order_create(
     _: Request,
     schema: OrderCreateRequestBody,
     user: User = Depends(get_current_user),
 ) -> Response[OrderPublic]:
-    """Create a new order."""
+    """Create a new pre-order."""
 
     # Save order to the database
-    order: Order = await orders.create(payload=schema.dict(), user=user)
+    order: OrderUncommited = await orders.create(
+        payload=schema.dict(), user=user
+    )
     order_public = OrderPublic.from_orm(order)
 
     return Response[OrderPublic](result=order_public)

@@ -17,7 +17,7 @@ from src.infrastructure.models import Response, ResponseMulti
 router = APIRouter(prefix="/users", tags=["Users"])
 
 
-@router.post("/cteate", status_code=status.HTTP_201_CREATED)
+@router.post("/create", status_code=status.HTTP_201_CREATED)
 @transaction
 async def user_create(
     _: Request,
@@ -41,19 +41,22 @@ async def user_create(
 @router.get("/me", status_code=status.HTTP_200_OK)
 @transaction
 async def user_me(
-    current_user: UserPublic = Depends(get_current_user),
-) -> dict:
+    current_user: User = Depends(get_current_user),
+) -> Response[UserPublic]:
     """Function return current user"""
 
-    user = current_user.dict()
-    user.pop("password")
-    return Response[UserPublic](result=user)
+    user: User = await UsersRepository().get(id_=current_user.id)
+    user_public = UserPublic.from_orm(user)
+
+    return Response[UserPublic](result=user_public)
 
 
 @router.get("/list", status_code=status.HTTP_200_OK)
 @transaction
 async def users_all(
-    user=Depends(RoleRequired(True)), skip: int = 0, limit: int = 5
+    user: User = Depends(RoleRequired(True)),  # pylint: disable=W0613
+    skip: int = 0,
+    limit: int = 5,
 ) -> ResponseMulti[UserPublic]:
     """Function return allusers, only for managers"""
 
@@ -69,13 +72,11 @@ async def users_all(
 @transaction
 async def user_manager(
     schema: UserPublic = Depends(get_current_user),
-) -> dict:
+) -> Response[UserPublic]:
     """Function updated user to user-manager"""
 
     schema.is_manager = True
-    user: UserPublic = await UsersRepository().update(
-        id_=schema.id, schema=schema
-    )
-    manager = user.dict()
-    manager.pop("password")
+    user: User = await UsersRepository().update(id_=schema.id, schema=schema)
+    manager = UserPublic.from_orm(user)
+
     return Response[UserPublic](result=manager)
