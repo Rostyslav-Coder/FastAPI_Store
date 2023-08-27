@@ -51,7 +51,7 @@ async def products_list(
     # Get all products from the database
     products_public = [
         ProductPublic.from_orm(product)
-        async for product in ProductRepository().all(skip=skip, limit=limit)
+        async for product in ProductRepository().all(skip_=skip, limit_=limit)
     ]
 
     return ResponseMulti[ProductPublic](result=products_public)
@@ -69,6 +69,25 @@ async def product_create(
     # Save product to the database
     product: Product = await ProductRepository().create(
         ProductUncommited(**schema.dict())
+    )
+    product_public = ProductPublic.from_orm(product)
+
+    return Response[ProductPublic](result=product_public)
+
+
+@router.put("/update_price", status_code=status.HTTP_202_ACCEPTED)
+@transaction
+async def product_price_update(
+    _: Request,
+    product_id: int,
+    new_price: int,
+    user: User = Depends(RoleRequired(True)),  # pylint: disable=W0613
+) -> Response[ProductPublic]:
+    """Update product price, only managers"""
+
+    payload = {"price": new_price}
+    product: Product = await ProductRepository().update(
+        key_="id", value_=product_id, payload_=payload
     )
     product_public = ProductPublic.from_orm(product)
 
