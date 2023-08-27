@@ -75,6 +75,25 @@ async def product_create(
     return Response[ProductPublic](result=product_public)
 
 
+@router.put("/update_name", status_code=status.HTTP_202_ACCEPTED)
+@transaction
+async def product_name_update(
+    _: Request,
+    product_id: int,
+    new_name: int,
+    user: User = Depends(RoleRequired(True)),  # pylint: disable=W0613
+) -> Response[ProductPublic]:
+    """Update product amount, only managers"""
+
+    payload = {"name": new_name}
+    product: Product = await ProductRepository().update(
+        key_="id", value_=product_id, payload_=payload
+    )
+    product_public = ProductPublic.from_orm(product)
+
+    return Response[ProductPublic](result=product_public)
+
+
 @router.put("/update_price", status_code=status.HTTP_202_ACCEPTED)
 @transaction
 async def product_price_update(
