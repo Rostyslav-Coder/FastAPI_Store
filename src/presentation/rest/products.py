@@ -19,28 +19,26 @@ router = APIRouter(prefix="/products", tags=["Products"])
 
 @router.get("/id/{product_id}", status_code=status.HTTP_200_OK)
 @transaction
-async def product_by_id(_: Request, product_id: int) -> ProductPublic:
-    """Get product by product id"""
+async def product_by_id(_: Request, prdct_id: int) -> Response[ProductPublic]:
+    """Get product by product id from DB"""
 
     # Get product from database by id
-    product_public: ProductPublic = await ProductRepository().get(
-        id_=product_id
-    )
+    product: Product = await ProductRepository().get(id_=prdct_id)
+    product_public = ProductPublic.from_orm(product)
 
-    return product_public
+    return Response[ProductPublic](result=product_public)
 
 
 @router.get("/name/{name}", status_code=status.HTTP_200_OK)
 @transaction
-async def product_by_name(_: Request, name: str) -> ProductPublic | None:
-    """Get product by product name"""
+async def product_by_name(_: Request, name: str) -> Response[ProductPublic]:
+    """Get product by product name from DB"""
 
     # Get product from database by name
-    product_public: ProductPublic = await ProductRepository().get_by_name(
-        name_=name
-    )
+    product: Product = await ProductRepository().get_by_name(name_=name)
+    product_public = ProductPublic.from_orm(product)
 
-    return product_public
+    return Response[ProductPublic](result=product_public)
 
 
 @router.get("/all", status_code=status.HTTP_200_OK)
@@ -48,7 +46,7 @@ async def product_by_name(_: Request, name: str) -> ProductPublic | None:
 async def products_list(
     _: Request, skip: int = 0, limit: int = 5
 ) -> ResponseMulti[ProductPublic]:
-    """Get all my products."""
+    """Get all products from DB"""
 
     # Get all products from the database
     products_public = [
@@ -64,7 +62,7 @@ async def products_list(
 async def product_create(
     _: Request,
     schema: ProductCreateRequestBody,
-    user: User = Depends(RoleRequired(True)),
+    user: User = Depends(RoleRequired(True)),  # pylint: disable=W0613
 ) -> Response[ProductPublic]:
     """Create a new product, only managers"""
 
