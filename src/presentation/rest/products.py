@@ -85,6 +85,7 @@ async def product_name_update(
 ) -> Response[ProductPublic]:
     """Update product name, only managers"""
 
+    # Update products name
     payload = {"name": new_name}
     product: Product = await ProductRepository().update(
         key_="id", value_=product_id, payload_=payload
@@ -104,6 +105,7 @@ async def product_title_update(
 ) -> Response[ProductPublic]:
     """Update product title, only managers"""
 
+    # Update products title
     payload = {"name": new_title}
     product: Product = await ProductRepository().update(
         key_="id", value_=product_id, payload_=payload
@@ -123,6 +125,7 @@ async def product_price_update(
 ) -> Response[ProductPublic]:
     """Update product price, only managers"""
 
+    # Update products price
     payload = {"price": new_price}
     product: Product = await ProductRepository().update(
         key_="id", value_=product_id, payload_=payload
@@ -142,6 +145,7 @@ async def product_amount_update(
 ) -> Response[ProductPublic]:
     """Update product amount, only managers"""
 
+    # Update products amount
     payload = {"amount": new_amount}
     product: Product = await ProductRepository().update(
         key_="id", value_=product_id, payload_=payload
