@@ -1,14 +1,25 @@
 """src/infrastructure/database/tables.py"""
 
+from datetime import datetime
 from typing import TypeVar
 
-from sqlalchemy import Boolean, ForeignKey, Integer, MetaData, String
+from sqlalchemy import (
+    Boolean,
+    DateTime,
+    Enum,
+    ForeignKey,
+    Integer,
+    MetaData,
+    String,
+)
 from sqlalchemy.orm import (
     Mapped,
     declarative_base,
     mapped_column,
     relationship,
 )
+
+from src.domain.constants import OrderStatus
 
 __all__ = ("UsersTable", "ProductsTable", "OrdersTable")
 
@@ -47,6 +58,7 @@ class UsersTable(Base):
     password: Mapped[str] = mapped_column(String(length=1024), nullable=False)
     first_name: Mapped[str] = mapped_column(String(length=100), nullable=True)
     last_name: Mapped[str] = mapped_column(String(length=100), nullable=True)
+    address: Mapped[str] = mapped_column(String(length=1024), nullable=False)
     is_manager: Mapped[bool] = mapped_column(Boolean, default=False)
 
     orders = relationship("OrdersTable", back_populates="user")
@@ -74,17 +86,24 @@ class OrdersTable(Base):
     __tablename__ = "orders"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    amount: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     product_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey(ProductsTable.id),
         nullable=False,
     )
+    amount: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     user_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey(UsersTable.id),
         nullable=False,
     )
+    delivery_address: Mapped[str] = mapped_column(
+        String(length=1024), nullable=True
+    )
+    status: Mapped[Enum] = mapped_column(
+        Enum(OrderStatus), nullable=False, default=OrderStatus.PENDING
+    )
+    order_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
 
     user = relationship("UsersTable", back_populates="orders")
     product = relationship("ProductsTable", back_populates="order")
