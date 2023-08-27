@@ -67,7 +67,7 @@ class RoleRequired:
     def __init__(self, role: bool):
         self.is_manager = role
 
-    async def __call__(self, user=Depends(get_current_user)):
+    async def __call__(self, user: User = Depends(get_current_user)):
         if user.is_manager != self.is_manager:
             raise AuthorizationError
 
