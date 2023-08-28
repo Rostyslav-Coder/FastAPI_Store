@@ -19,13 +19,14 @@ router = APIRouter(prefix="/orders", tags=["Orders"])
 
 @router.post("/add_to_cart", status_code=status.HTTP_201_CREATED)
 @transaction
-async def order_create(
+async def cart_create(
     _: Request,
     schema: OrderCreateRequestBody,
     user: User = Depends(get_current_user),
 ) -> Response[OrderPublic]:
     """Create a new pre-order."""
 
+    # Create new order with PENDING status
     order_raw = OrderUncommited(
         product_id=schema.product_id,
         amount=schema.amount,
@@ -33,7 +34,7 @@ async def order_create(
         delivery_address=user.address,
     )
 
-    # Save user to the database
+    # Save order to the database
     order: Order = await OrdersRepository().create(schema=order_raw)
     order_public = OrderPublic.from_orm(order)
 
@@ -57,21 +58,6 @@ async def cart_list(
     ]
 
     return ResponseMulti[OrderPublic](result=orders_public)
-
-
-@router.delete("/my_cart")
-@transaction
-async def cart_remove(
-    _: Request,
-    order_id: int,
-    user: User = Depends(get_current_user),  # pylint: disable=W0613
-):
-    """Delete unpayed order from cart"""
-
-    # Delete order from database
-    await OrdersRepository().delete(id_=order_id)
-
-    return HTTPException(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.put("/my_cart", status_code=status.HTTP_202_ACCEPTED)
@@ -102,3 +88,18 @@ async def product_amount_update(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Order status is not pending",
         )
+
+
+@router.delete("/my_cart")
+@transaction
+async def cart_remove(
+    _: Request,
+    order_id: int,
+    user: User = Depends(get_current_user),  # pylint: disable=W0613
+):
+    """Delete unpayed order from cart"""
+
+    # Delete order from database
+    await OrdersRepository().delete(id_=order_id)
+
+    return HTTPException(status_code=status.HTTP_204_NO_CONTENT)
