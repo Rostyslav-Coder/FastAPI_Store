@@ -12,7 +12,7 @@ from src.domain.orders import (
 )
 from src.domain.users import User
 from src.infrastructure.database.transaction import transaction
-from src.infrastructure.models import Response
+from src.infrastructure.models import Response, ResponseMulti
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
 
@@ -38,3 +38,22 @@ async def order_create(
     order_public = OrderPublic.from_orm(order)
 
     return Response[OrderPublic](result=order_public)
+
+
+@router.get("/my_cart", status_code=status.HTTP_200_OK)
+@transaction
+async def cart_list(
+    _: Request,
+    skip: int,
+    limit: int,
+    user: User = Depends(get_current_user),  # pylint: disable=W0613
+) -> ResponseMulti[OrderPublic]:
+    """Get all my cart orders."""
+
+    # Get all my products from the cart
+    orders_public = [
+        OrderPublic.from_orm(order)
+        async for order in OrdersRepository().all_my_catr(user.id, skip, limit)
+    ]
+
+    return ResponseMulti[OrderPublic](result=orders_public)
