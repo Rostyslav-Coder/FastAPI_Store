@@ -1,6 +1,6 @@
 """src/presentation/rest/orders.py"""
 
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 
 from src.application.authentication import get_current_user
 from src.domain.orders import (
@@ -48,7 +48,7 @@ async def cart_list(
     limit: int,
     user: User = Depends(get_current_user),  # pylint: disable=W0613
 ) -> ResponseMulti[OrderPublic]:
-    """Get all my cart orders."""
+    """Get all orders from my cart."""
 
     # Get all my products from the cart
     orders_public = [
@@ -57,3 +57,18 @@ async def cart_list(
     ]
 
     return ResponseMulti[OrderPublic](result=orders_public)
+
+
+@router.delete("/my_cart")
+@transaction
+async def cart_remove(
+    _: Request,
+    order_id: int,
+    user: User = Depends(get_current_user),  # pylint: disable=W0613
+):
+    """Delete unpayed order from cart"""
+
+    # Delete order from database
+    await OrdersRepository().delete(id_=order_id)
+
+    return HTTPException(status_code=status.HTTP_204_NO_CONTENT)
