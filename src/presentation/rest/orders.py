@@ -2,9 +2,9 @@
 
 from fastapi import APIRouter, Depends, Request, status
 
-from src.application import orders
 from src.application.authentication import get_current_user
 from src.domain.orders import (
+    Order,
     OrderCreateRequestBody,
     OrderPublic,
     OrdersRepository,
@@ -12,27 +12,13 @@ from src.domain.orders import (
 )
 from src.domain.users import User
 from src.infrastructure.database.transaction import transaction
-from src.infrastructure.models import Response, ResponseMulti
+from src.infrastructure.models import Response
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
 
 
-@router.get("/my_orders", status_code=status.HTTP_200_OK)
+@router.post("/add_to_cart", status_code=status.HTTP_201_CREATED)
 @transaction
-async def orders_list(
-    _: Request, user: User = Depends(get_current_user)
-) -> ResponseMulti[OrderPublic]:
-    """Get all my orders."""
-
-    # Get all my products from the database
-    orders_public = [
-        OrderPublic.from_orm(order) async for order in OrdersRepository().all()
-    ]
-
-    return ResponseMulti[OrderPublic](result=orders_public)
-
-
-@router.post("/add", status_code=status.HTTP_201_CREATED)
 async def order_create(
     _: Request,
     schema: OrderCreateRequestBody,
@@ -40,10 +26,15 @@ async def order_create(
 ) -> Response[OrderPublic]:
     """Create a new pre-order."""
 
-    # Save order to the database
-    order: OrderUncommited = await orders.create(
-        payload=schema.dict(), user=user
+    order_raw = OrderUncommited(
+        product_id=schema.product_id,
+        amount=schema.amount,
+        user_id=user.id,
+        delivery_address=user.address,
     )
+
+    # Save user to the database
+    order: Order = await OrdersRepository().create(schema=order_raw)
     order_public = OrderPublic.from_orm(order)
 
     return Response[OrderPublic](result=order_public)
