@@ -34,3 +34,6 @@ class ProductRepository(BaseRepository[ProductsTable]):
     ) -> Product:
         instance = await self._update(key=key_, value=value_, payload=payload_)
         return Product.from_orm(instance)
+
+    async def delete(self, id_: int) -> None:
+        return await super().delete(id_)
