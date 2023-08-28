@@ -82,13 +82,23 @@ async def product_amount_update(
     new_amount: int,
     user: User = Depends(get_current_user),  # pylint: disable=W0613
 ) -> Response[OrderPublic]:
-    """Update product amount, only managers"""
+    """Update product amount"""
 
-    # Update products amount
-    payload = {"amount": new_amount}
-    product: Order = await OrdersRepository().update(
-        key_="id", value_=order_id, payload_=payload
-    )
-    product_public = OrderPublic.from_orm(product)
+    # Get the order from database
+    order = await OrdersRepository().get(id_=order_id)
 
-    return Response[OrderPublic](result=product_public)
+    # Check the status of the order
+    if order.status == "PENDING":
+        # Update products amount
+        payload = {"amount": new_amount}
+        product: Order = await OrdersRepository().update(
+            key_="id", value_=order_id, payload_=payload
+        )
+        product_public = OrderPublic.from_orm(product)
+
+        return Response[OrderPublic](result=product_public)
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Order status is not pending",
+        )
