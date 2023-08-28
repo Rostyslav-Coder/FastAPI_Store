@@ -38,32 +38,24 @@ class OrderPublic(_OrderPublic):
     id: int
     user_id: int
     delivery_address: str
-    status: OrderStatus
-    order_date: datetime
+    status: OrderStatus = OrderStatus.PENDING
+    order_date: datetime = datetime.utcnow()
 
 
 # Internal models
 # ------------------------------------------------------
-class _OrderInternal(InternalModel):
-    """Base class for internal order schemas. Defines common fields
-    that are present in all internal order schemas.
-    """
+class OrderUncommited(InternalModel):
+    """This schema is used for creating instance in the database."""
 
     product_id: int
     amount: int
     user_id: int
     delivery_address: str
     status: OrderStatus = OrderStatus.PENDING
-    order_date: datetime
+    order_date: datetime = datetime.utcnow()
 
 
-class OrderUncommited(_OrderInternal):
-    """This schema is used for creating instance in the database."""
-
-    pass
-
-
-class Order(_OrderInternal):
+class Order(OrderUncommited):
     """Existed order representation."""
 
     id: int
