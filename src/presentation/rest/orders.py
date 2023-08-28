@@ -32,7 +32,10 @@ async def cart_create(
     if product.amount < schema.amount:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="There is not enough",
+            detail=(
+                f"Not enough quantity, there are "
+                f"{product.amount} pieces in stock"
+            ),
         )
 
     # Create new order with PENDING status
