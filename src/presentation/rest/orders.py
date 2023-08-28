@@ -27,7 +27,7 @@ async def cart_create(
 ) -> Response[OrderPublic]:
     """Create a new pre-order."""
 
-    # Get the order from database
+    # Get the product from database
     product = await ProductRepository().get(id_=schema.product_id)
     if product.amount < schema.amount:
         raise HTTPException(
@@ -60,7 +60,7 @@ async def cart_list(
 ) -> ResponseMulti[OrderPublic]:
     """Get all orders from my cart."""
 
-    # Get all my products from the cart
+    # Get all my products with PENDING status from the database
     orders_public = [
         OrderPublic.from_orm(order)
         async for order in OrdersRepository().all_my_catr(user.id, skip, limit)
