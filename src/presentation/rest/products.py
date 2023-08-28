@@ -1,6 +1,6 @@
 """src/presentation/rest/products.py"""
 
-from fastapi import APIRouter, Depends, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 
 from src.application.authentication import RoleRequired
 from src.domain.products import (
@@ -153,3 +153,18 @@ async def product_amount_update(
     product_public = ProductPublic.from_orm(product)
 
     return Response[ProductPublic](result=product_public)
+
+
+@router.delete("/remove")
+@transaction
+async def product_remove(
+    _: Request,
+    product_id: int,
+    user: User = Depends(RoleRequired(True)),  # pylint: disable=W0613
+):
+    """Delete product from database, only managers"""
+
+    # Delete product from database
+    await ProductRepository().delete(id_=product_id)
+
+    return HTTPException(status_code=status.HTTP_204_NO_CONTENT)
