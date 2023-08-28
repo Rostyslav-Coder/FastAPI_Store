@@ -10,6 +10,7 @@ from src.domain.orders import (
     OrdersRepository,
     OrderUncommited,
 )
+from src.domain.products import ProductRepository
 from src.domain.users import User
 from src.infrastructure.database.transaction import transaction
 from src.infrastructure.models import Response, ResponseMulti
@@ -25,6 +26,14 @@ async def cart_create(
     user: User = Depends(get_current_user),
 ) -> Response[OrderPublic]:
     """Create a new pre-order."""
+
+    # Get the order from database
+    product = await ProductRepository().get(id_=schema.product_id)
+    if product.amount < schema.amount:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="There is not enough",
+        )
 
     # Create new order with PENDING status
     order_raw = OrderUncommited(
