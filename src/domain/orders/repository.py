@@ -1,6 +1,6 @@
 """src/domain/orders/repository.py"""
 
-from typing import AsyncGenerator
+from typing import Any, AsyncGenerator
 
 from src.domain.orders.models import Order, OrderUncommited
 from src.infrastructure.database import BaseRepository, OrdersTable
@@ -27,4 +27,10 @@ class OrdersRepository(BaseRepository[OrdersTable]):
 
     async def create(self, schema: OrderUncommited) -> Order:
         instance: OrdersTable = await self._save(schema.dict())
+        return Order.from_orm(instance)
+
+    async def update(
+        self, key_: str, value_: Any, payload_: dict[str, Any]
+    ) -> Order:
+        instance = await self._update(key=key_, value=value_, payload=payload_)
         return Order.from_orm(instance)
