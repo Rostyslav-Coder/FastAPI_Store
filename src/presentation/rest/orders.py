@@ -72,3 +72,23 @@ async def cart_remove(
     await OrdersRepository().delete(id_=order_id)
 
     return HTTPException(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.put("/my_cart", status_code=status.HTTP_202_ACCEPTED)
+@transaction
+async def product_amount_update(
+    _: Request,
+    order_id: int,
+    new_amount: int,
+    user: User = Depends(get_current_user),  # pylint: disable=W0613
+) -> Response[OrderPublic]:
+    """Update product amount, only managers"""
+
+    # Update products amount
+    payload = {"amount": new_amount}
+    product: Order = await OrdersRepository().update(
+        key_="id", value_=order_id, payload_=payload
+    )
+    product_public = OrderPublic.from_orm(product)
+
+    return Response[OrderPublic](result=product_public)
