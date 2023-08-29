@@ -4,7 +4,6 @@ from typing import Any, AsyncGenerator, Generic, Type
 
 from sqlalchemy import Result, asc, delete, desc, func, select, update
 
-from src.domain.constants.orders import OrderStatus
 from src.infrastructure.database.session import Session
 from src.infrastructure.database.tables import ConcreteTable
 from src.infrastructure.errors import (
@@ -116,7 +115,7 @@ class BaseRepository(Session, Generic[ConcreteTable]):  # type: ignore
             raise DatabaseError
 
     async def _all(
-        self, skip: int = 0, limit: int = 5
+        self, skip: int = None, limit: int = None
     ) -> AsyncGenerator[ConcreteTable, None]:
         result: Result = await self.execute(
             select(self.schema_class).offset(skip).limit(limit)
@@ -126,22 +125,7 @@ class BaseRepository(Session, Generic[ConcreteTable]):  # type: ignore
         for schema in schemas:
             yield schema
 
-    async def _all_my_cart(
-        self, user_id: int, skip: int = 0, limit: int = 5
-    ) -> AsyncGenerator[ConcreteTable, None]:
-        result: Result = await self.execute(
-            select(self.schema_class)
-            .where(self.schema_class.user_id == user_id)
-            .where(self.schema_class.status == OrderStatus.PENDING)
-            .offset(skip)
-            .limit(limit)
-        )
-        schemas = result.scalars().all()
-
-        for schema in schemas:
-            yield schema
-
-    async def delete(self, id_: int) -> None:
+    async def _delete(self, id_: int) -> None:
         await self.execute(
             delete(self.schema_class).where(self.schema_class.id == id_)
         )
