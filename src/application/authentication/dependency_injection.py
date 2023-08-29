@@ -40,7 +40,7 @@ async def get_current_user(token: str = Depends(oauth2_oauth)) -> User:
     except (JWTError, ValidationError):
         raise AuthenticationError  # pylint: disable=W0707
 
-    user = await UsersRepository().get(id_=token_payload.sub)
+    user = await UsersRepository().get(key_="id", value_=token_payload.sub)
 
     return user
 
