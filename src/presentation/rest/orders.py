@@ -27,7 +27,7 @@ async def cart_create(
 ) -> Response[OrderPublic]:
     """Create a new pre-order."""
 
-    # Get the product from database
+    # Get the product from database to check product`s amount
     product = await ProductRepository().get(id_=schema.product_id)
     if product.amount < schema.amount:
         raise HTTPException(
@@ -38,7 +38,7 @@ async def cart_create(
             ),
         )
 
-    # Create new order with PENDING status
+    # Create new order with 'PENDING' status
     order_raw = OrderUncommited(
         product_id=schema.product_id,
         amount=schema.amount,
@@ -46,7 +46,7 @@ async def cart_create(
         delivery_address=user.address,
     )
 
-    # Save order to the database
+    # Save order to the database like in cart
     order: Order = await OrdersRepository().create(schema=order_raw)
     order_public = OrderPublic.from_orm(order)
 
@@ -63,7 +63,7 @@ async def cart_list(
 ) -> ResponseMulti[OrderPublic]:
     """Get all orders from my cart."""
 
-    # Get all my products with PENDING status from the database
+    # Get all user`s products with 'PENDING' status from the database
     orders_public = [
         OrderPublic.from_orm(order)
         async for order in OrdersRepository().all_my_catr(user.id, skip, limit)
@@ -110,6 +110,14 @@ async def cart_remove(
     user: User = Depends(get_current_user),  # pylint: disable=W0613
 ):
     """Delete unpayed order from cart"""
+
+    # Get the product from database to check product`s status
+    order = await OrdersRepository().get(id_=order_id)
+    if order.status != "PENDING":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Bad Request",
+        )
 
     # Delete order from database
     await OrdersRepository().delete(id_=order_id)
