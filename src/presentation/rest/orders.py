@@ -70,7 +70,7 @@ async def cart_list(
     orders_public = [
         OrderPublic.from_orm(order)
         async for order in OrdersRepository().all_pending(
-            key_="user_id", value_=user.id, skip_=skip, limit_=limit
+            value_=user.id, skip_=skip, limit_=limit
         )
     ]
 
@@ -144,7 +144,7 @@ async def order_pay(
     product_list = [
         Order.from_orm(order)
         async for order in OrdersRepository().all_pending(
-            key_="user_id", value_=user.id, skip_=skip, limit_=limit
+            value_=user.id, skip_=skip, limit_=limit
         )
     ]
 
@@ -186,5 +186,7 @@ async def order_pay(
         updated_orders.append(order)
 
     orders_public = [OrderPublic.from_orm(order) for order in updated_orders]
+
+    # TODO add celery function to send manager email with orders_public copy
 
     return ResponseMulti[OrderPublic](result=orders_public)

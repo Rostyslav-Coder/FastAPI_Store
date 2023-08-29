@@ -19,12 +19,14 @@ router = APIRouter(prefix="/products", tags=["Products"])
 
 @router.get("/id/{product_id}", status_code=status.HTTP_200_OK)
 @transaction
-async def product_by_id(_: Request, prdct_id: int) -> Response[ProductPublic]:
+async def product_by_id(
+    _: Request, product_id: int
+) -> Response[ProductPublic]:
     """Get product by product id from database"""
 
     # Get product from database by id
     product: Product = await ProductRepository().get(
-        key_="id", value_=prdct_id
+        key_="id", value_=product_id
     )
     product_public = ProductPublic.from_orm(product)
 
