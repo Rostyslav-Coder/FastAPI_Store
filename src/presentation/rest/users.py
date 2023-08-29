@@ -23,13 +23,13 @@ async def user_create(
     _: Request,
     schema: UserCreateRequestBody,
 ) -> Response[UserPublic]:
-    """Create a new usser."""
+    """Create new user."""
 
     # Password hashing
     hashed_password = pwd_context.hash(schema.password)
     schema.password = hashed_password
 
-    # Save user to the database
+    # Save new user to the database
     user: User = await UsersRepository().create(
         UserUncommited(**schema.dict())
     )
@@ -43,9 +43,10 @@ async def user_create(
 async def user_me(
     current_user: User = Depends(get_current_user),
 ) -> Response[UserPublic]:
-    """Function return current user"""
+    """Get current aythenticate user by JWT token"""
 
-    user: User = await UsersRepository().get(id_=current_user.id)
+    # Get user by JWT from database
+    user: User = await UsersRepository().get(key_="id", value_=current_user.id)
     user_public = UserPublic.from_orm(user)
 
     return Response[UserPublic](result=user_public)
@@ -54,15 +55,16 @@ async def user_me(
 @router.get("/list", status_code=status.HTTP_200_OK)
 @transaction
 async def users_all(
-    user: User = Depends(RoleRequired(True)),  # pylint: disable=W0613
-    skip: int = 0,
-    limit: int = 5,
+    _: User = Depends(RoleRequired(True)),
+    skip: int = None,
+    limit: int = None,
 ) -> ResponseMulti[UserPublic]:
-    """Function return allusers, only for managers"""
+    """Function return all users, only for managers"""
 
+    # Get users list from database
     users_list = [
         UserPublic.from_orm(users)
-        async for users in UsersRepository().all(skip=skip, limit=limit)
+        async for users in UsersRepository().all(skip_=skip, limit_=limit)
     ]
 
     return ResponseMulti[UserPublic](result=users_list)
@@ -71,12 +73,15 @@ async def users_all(
 @router.put("/manager", status_code=status.HTTP_202_ACCEPTED)
 @transaction
 async def user_manager(
-    schema: UserPublic = Depends(get_current_user),
+    user: UserPublic = Depends(get_current_user),
 ) -> Response[UserPublic]:
-    """Function updated user to user-manager"""
+    """Update user to user-manager"""
 
-    schema.is_manager = True
-    user: User = await UsersRepository().update(id_=schema.id, schema=schema)
+    # Update user to user-manager
+    user.is_manager = True
+    user: User = await UsersRepository().update(
+        key_="id", value_=user.id, payload_=user
+    )
     manager = UserPublic.from_orm(user)
 
     return Response[UserPublic](result=manager)
