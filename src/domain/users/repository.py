@@ -12,12 +12,12 @@ class UsersRepository(BaseRepository[UsersTable]):
     schema_class = UsersTable
 
     async def all(
-        self, skip_: int = None, limit_: int = None
+        self, skip_: int = 0, limit_: int | None = None
     ) -> AsyncGenerator[User, None]:
         async for instance in self._all(skip=skip_, limit=limit_):
             yield User.from_orm(instance)
 
-    async def get(self, key_: int, value_: Any) -> User:
+    async def get(self, key_: str, value_: Any) -> User:
         instance = await self._get(key=key_, value=value_)
         return User.from_orm(instance)
 
