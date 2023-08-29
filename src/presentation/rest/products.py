@@ -20,10 +20,12 @@ router = APIRouter(prefix="/products", tags=["Products"])
 @router.get("/id/{product_id}", status_code=status.HTTP_200_OK)
 @transaction
 async def product_by_id(_: Request, prdct_id: int) -> Response[ProductPublic]:
-    """Get product by product id from DB"""
+    """Get product by product id from database"""
 
     # Get product from database by id
-    product: Product = await ProductRepository().get(id_=prdct_id)
+    product: Product = await ProductRepository().get(
+        key_="id", value_=prdct_id
+    )
     product_public = ProductPublic.from_orm(product)
 
     return Response[ProductPublic](result=product_public)
@@ -32,10 +34,10 @@ async def product_by_id(_: Request, prdct_id: int) -> Response[ProductPublic]:
 @router.get("/name/{name}", status_code=status.HTTP_200_OK)
 @transaction
 async def product_by_name(_: Request, name: str) -> Response[ProductPublic]:
-    """Get product by product name from DB"""
+    """Get product by product name from database"""
 
     # Get product from database by name
-    product: Product = await ProductRepository().get_by_name(name_=name)
+    product: Product = await ProductRepository().get(key_="name", value_=name)
     product_public = ProductPublic.from_orm(product)
 
     return Response[ProductPublic](result=product_public)
@@ -44,7 +46,7 @@ async def product_by_name(_: Request, name: str) -> Response[ProductPublic]:
 @router.get("/all", status_code=status.HTTP_200_OK)
 @transaction
 async def products_list(
-    _: Request, skip: int = 0, limit: int = 5
+    _: Request, skip: int = None, limit: int = None
 ) -> ResponseMulti[ProductPublic]:
     """Get all products from DB"""
 
@@ -61,16 +63,16 @@ async def products_list(
 @transaction
 async def product_create(
     _: Request,
-    schema: ProductCreateRequestBody,
+    product: ProductCreateRequestBody,
     user: User = Depends(RoleRequired(True)),  # pylint: disable=W0613
 ) -> Response[ProductPublic]:
     """Create a new product, only managers"""
 
     # Save product to the database
-    product: Product = await ProductRepository().create(
-        ProductUncommited(**schema.dict())
+    added_product: Product = await ProductRepository().create(
+        ProductUncommited(**product.dict())
     )
-    product_public = ProductPublic.from_orm(product)
+    product_public = ProductPublic.from_orm(added_product)
 
     return Response[ProductPublic](result=product_public)
 
@@ -106,7 +108,7 @@ async def product_title_update(
     """Update product title, only managers"""
 
     # Update products title
-    payload = {"name": new_title}
+    payload = {"title": new_title}
     product: Product = await ProductRepository().update(
         key_="id", value_=product_id, payload_=payload
     )
