@@ -115,11 +115,15 @@ class BaseRepository(Session, Generic[ConcreteTable]):  # type: ignore
             raise DatabaseError
 
     async def _all(
-        self, skip: int = None, limit: int = None
+        self, skip: int = 0, limit: int | None = None
     ) -> AsyncGenerator[ConcreteTable, None]:
-        result: Result = await self.execute(
-            select(self.schema_class).offset(skip).limit(limit)
-        )
+        query = select(self.schema_class).offset(skip)
+
+        if limit is not None:
+            query = query.limit(limit)
+
+        result: Result = await self.execute(query)
+
         schemas = result.scalars().all()
 
         for schema in schemas:
