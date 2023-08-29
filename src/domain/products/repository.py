@@ -12,7 +12,7 @@ class ProductRepository(BaseRepository[ProductsTable]):
     schema_class = ProductsTable
 
     async def all(
-        self, skip_: int = None, limit_: int = None
+        self, skip_: int = 0, limit_: int | None = None
     ) -> AsyncGenerator[Product, None]:
         async for instance in self._all(skip=skip_, limit=limit_):
             yield Product.from_orm(instance)
