@@ -1,9 +1,25 @@
 """src/confid/config.py"""
 
+import os
 from pathlib import Path
 
+from dotenv import load_dotenv
 from passlib.context import CryptContext
 from pydantic import BaseConfig, BaseModel, BaseSettings
+
+load_dotenv()
+
+
+# Virtual environment variables
+# =====================================
+# Celery variables
+SMTP_USER = os.environ.get("SMTP_USER")
+SMTP_PASS = os.environ.get("SMTP_PASS")
+SMTP_PORT = os.environ.get("SMTP_PORT")
+SMTP_HOST = os.environ.get("SMTP_HOST")
+
+# Manager variables
+MANAGER_SECRET = os.environ.get("MANAGER_SECRET")
 
 
 # API Settings
