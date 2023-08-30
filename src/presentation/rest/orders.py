@@ -3,6 +3,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 
 from src.application.authentication import RoleRequired, get_current_user
+from src.celery.tasks import send_email
 from src.domain.constants import OrderStatus
 from src.domain.orders import (
     Order,
@@ -187,7 +188,8 @@ async def order_pay(
 
     orders_public = [OrderPublic.from_orm(order) for order in updated_orders]
 
-    # TODO add celery function to send manager email with orders_public copy
+    subject = "Goods paid"
+    send_email(user_=user, subject_=subject, orders_=orders_public)
 
     return ResponseMulti[OrderPublic](result=orders_public)
 
@@ -250,6 +252,7 @@ async def orders_shipped(
 
     orders_public = [OrderPublic.from_orm(order) for order in updated_orders]
 
-    # TODO add celery function to send user email with shipped info
+    subject = "Goods shipped"
+    send_email(user_=user, subject_=subject, orders_=orders_public)
 
     return ResponseMulti[OrderPublic](result=orders_public)
