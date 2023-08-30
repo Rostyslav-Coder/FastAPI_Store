@@ -48,7 +48,7 @@ async def product_by_name(_: Request, name: str) -> Response[ProductPublic]:
 @router.get("/all", status_code=status.HTTP_200_OK)
 @transaction
 async def products_list(
-    _: Request, skip: int = None, limit: int = None
+    _: Request, skip: int = 0, limit: int = None
 ) -> ResponseMulti[ProductPublic]:
     """Get all products from DB"""
 

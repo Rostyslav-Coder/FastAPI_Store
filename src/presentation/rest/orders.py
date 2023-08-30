@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 
-from src.application.authentication import get_current_user
+from src.application.authentication import RoleRequired, get_current_user
 from src.domain.constants import OrderStatus
 from src.domain.orders import (
     Order,
@@ -60,8 +60,8 @@ async def cart_create(
 @transaction
 async def cart_list(
     _: Request,
-    skip: int = None,
-    limit: int = None,
+    skip: int = 0,
+    limit: int | None = None,
     user: User = Depends(get_current_user),  # pylint: disable=W0613
 ) -> ResponseMulti[OrderPublic]:
     """Get all orders from my cart."""
@@ -79,7 +79,7 @@ async def cart_list(
 
 @router.put("/my_cart", status_code=status.HTTP_202_ACCEPTED)
 @transaction
-async def product_amount_update(
+async def cart_amount_update(
     _: Request,
     order_id: int,
     new_amount: int,
@@ -134,8 +134,8 @@ async def cart_remove(
 @transaction
 async def order_pay(
     _: Request,
-    skip: int = None,
-    limit: int = None,
+    skip: int = 0,
+    limit: int | None = None,
     user: User = Depends(get_current_user),
 ):
     """Pay products from cart"""
@@ -190,3 +190,24 @@ async def order_pay(
     # TODO add celery function to send manager email with orders_public copy
 
     return ResponseMulti[OrderPublic](result=orders_public)
+
+
+@router.get("/paid", status_code=status.HTTP_200_OK)
+@transaction
+async def orders_get(
+    _: Request,
+    skip: int = 0,
+    limit: int | None = None,
+    user: User = Depends(RoleRequired(True)),  # pylint: disable=W0613
+) -> ResponseMulti[OrderPublic]:
+    """Get all payed orders, only manager"""
+
+    # Get orders list with status PAID
+    paid_orders_list = [
+        OrderPublic.from_orm(order)
+        async for order in OrdersRepository().all_paid(
+            value_=None, skip_=skip, limit_=limit
+        )
+    ]
+
+    return ResponseMulti[OrderPublic](result=paid_orders_list)
