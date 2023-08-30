@@ -7,6 +7,7 @@ name = "pypi"
 SQLAlchemy = {version = "~=2.0", extras=["asyncio", "mypy"]}
 aiosqlite = "~=0.19"
 alembic = "~=1.10"
+celery = {version = "==5.3.1", extras = ["redis"]}
 fastapi = "~=0.100"
 greenlet = "~=2.0" # required by SQLAlchemy: https://docs.sqlalchemy.org/en/20/orm/extensions/asyncio.html
 gunicorn = "~=20.1"
@@ -14,9 +15,9 @@ loguru = "~=0.6"
 passlib = {version = "~=1.7", extras = ["bcrypt"]}
 pydantic = {version = "~=1.10", extras=["dotenv"]}
 python-jose = {version = "~=3.3", extras = ["cryptography"]}
+python-multipart = "*"
 uvicorn = "~=0.21.0"
 websockets = "~=11.0"
-python-multipart = "*"
 
 [dev-packages]
 black = "~=23.1"
