@@ -54,7 +54,7 @@ class OrdersRepository(BaseRepository[OrdersTable]):
         query = query.offset(skip_)
 
         if limit_ is not None:
-            query.limit(limit_)
+            query = query.limit(limit_)
 
         result: Result = await self.execute(query)
 
