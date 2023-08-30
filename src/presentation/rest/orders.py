@@ -211,3 +211,45 @@ async def orders_get(
     ]
 
     return ResponseMulti[OrderPublic](result=paid_orders_list)
+
+
+@router.put("/paid/shipped", status_code=status.HTTP_202_ACCEPTED)
+@transaction
+async def orders_shipped(
+    _: Request,
+    user_id: int,
+    skip: int = 0,
+    limit: int | None = None,
+    user: User = Depends(RoleRequired(True)),  # pylint: disable=W0613
+) -> ResponseMulti[OrderPublic]:
+    """Update orders status to SHIPPED, only manager"""
+
+    # Get orders list with status PAID, to current user
+    paid_orders_list = [
+        OrderPublic.from_orm(order)
+        async for order in OrdersRepository().all_paid(
+            value_=user_id, skip_=skip, limit_=limit
+        )
+    ]
+
+    # Update orders status to SHIPPED
+    payload = {"status": OrderStatus.SHIPPED}
+    for paid_order in paid_orders_list:
+        order: Order = await OrdersRepository().update(
+            key_="id", value_=paid_order.id, payload_=payload
+        )
+
+    # Add updated orders id to list
+    orders_id = [order.id for order in paid_orders_list]
+
+    # Get updated orders
+    updated_orders = []
+    for order_id in orders_id:
+        order: Order = await OrdersRepository().get(key_="id", value_=order_id)
+        updated_orders.append(order)
+
+    orders_public = [OrderPublic.from_orm(order) for order in updated_orders]
+
+    # TODO add celery function to send user email with shipped info
+
+    return ResponseMulti[OrderPublic](result=orders_public)
