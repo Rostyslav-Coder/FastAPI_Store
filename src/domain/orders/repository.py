@@ -32,6 +32,28 @@ class OrdersRepository(BaseRepository[OrdersTable]):
         )
 
         if limit_ is not None:
+            query = query.limit(limit_)
+
+        result: Result = await self.execute(query)
+
+        schemas = result.scalars().all()
+
+        for schema in schemas:
+            yield schema
+
+    async def all_paid(
+        self, value_: int | None, skip_: int = 0, limit_: int | None = None
+    ) -> AsyncGenerator[ConcreteTable, None]:
+        query = select(self.schema_class).where(
+            self.schema_class.status == OrderStatus.PAID
+        )
+
+        if value_ is not None:
+            query = query.where(self.schema_class.user_id == value_)
+
+        query = query.offset(skip_)
+
+        if limit_ is not None:
             query.limit(limit_)
 
         result: Result = await self.execute(query)
