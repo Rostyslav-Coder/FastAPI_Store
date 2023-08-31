@@ -13,7 +13,7 @@
 ## How to run the project
 ### To run the project locally, you need to have Python 3.9 or higher installed on your computer. You also need to have Git installed on your computer. Follow these steps to run the project:
 
-### Clone the project repository from GitHub using this command: git clone https://github.com/online-shop-project/online-shop.git
+### Clone the project repository from GitHub using this command: git clone https://github.com/Rostyslav-Coder/FastAPI_Store.git
 ### Create a virtual environment for the project using this command: pipenv lock
 ### Activate the virtual environment using this command: pipenv sync
 ### Start the Celery worker using this command: celery -A app.celery worker --loglevel=info
